@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Caixa Eletrônico - Desafio ATM
 
-## Getting Started
+Este é um projeto que simula o funcionamento de um caixa eletrônico simples. O sistema é capaz de calcular a menor quantidade de cédulas necessárias para um saque, utilizando uma abordagem otimizada baseada em programação dinâmica.
 
-First, run the development server:
+## Como Executar o Projeto
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Siga os passos abaixo para rodar o projeto localmente:
+
+1. **Clone o repositório**:
+   ```bash
+   git clone https://github.com/oarthurfc/desafio-atm.git
+   ```
+
+2. **Instale as Dependências**:
+   ```bash
+   npm install
+   ```
+
+3. **Inicie o Servidor de Desenvolvimento**:
+   ```bash
+   npm run dev
+   ```
+
+- Abra [http://localhost:3000](http://localhost:3000) no navegador para visualizar a aplicação.
+- Ou faça requisições para [http://localhost:3000/api/saque](http://localhost:3000/api/saque) passando o parâmetro ```valor``` no body.
+
+4. **Executar os Testes**:
+   - Para rodar todos os testes:
+     ```bash
+     npm test
+     ```
+   - Para rodar os testes em modo "watch":
+     ```bash
+     npm run test:watch
+     ```
+   - Para verificar a cobertura dos testes:
+     ```bash
+     npm run test:coverage
+     ```
+
+## API - Endpoint `/api/saque`
+
+### Requisição
+
+A API aceita requisições do tipo `POST` com o seguinte formato no corpo da requisição:
+
+```json
+{
+  "valor": 150
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **`valor`**: Número inteiro representando o valor a ser sacado.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Resposta
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+A resposta será um objeto JSON contendo a quantidade de cédulas necessárias para compor o valor solicitado. Exemplo:
 
-## Learn More
+```json
+{
+  "100": 1,
+  "50": 1,
+  "20": 0,
+  "10": 0,
+  "5": 0,
+  "2": 0
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
+Caso ocorra algum erro, a API retornará um objeto de erro com o código HTTP apropriado. Exemplo de erro:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```json
+{
+  "error": "Não é possível sacar este valor com as cédulas disponíveis",
+  "code": "IMPOSSIBLE_WITHDRAWAL"
+}
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Tratamento de Exceções
 
-## Deploy on Vercel
+A API realiza validações rigorosas para garantir a integridade das requisições:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Formato Inválido**: Caso o corpo da requisição não seja um JSON válido ou não contenha o campo `valor`, a API retorna um erro com código `INVALID_REQUEST`.
+- **Valor Inválido**: Caso o valor seja negativo, não inteiro ou impossível de ser sacado com as cédulas disponíveis, a API retorna erros específicos como `NEGATIVE`, `NOT_INTEGER` ou `IMPOSSIBLE_WITHDRAWAL`.
+- **Erro Interno**: Qualquer erro inesperado é tratado e retorna uma mensagem genérica com código `INTERNAL_ERROR`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Principais desafios
+
+O principal desafio deste projeto foi lidar com cenários de valores possíveis, começando por valores impossíveis de serem sacados (ex.: 1, 3). O desafio se intensificou ainda mais ao lidar com números que, teoricamente, poderiam ser sacados de acordo com as cédulas disponíveis, mas produziam resultados incorretos com o algoritmo inicial (ex.: 6, 8, 11, 16, 17, etc.).
+
+Após pesquisa, descobri que este é um problema clássico em [Greedy algorithm](https://en.wikipedia.org/wiki/Greedy_algorithm), conhecido como o ["Problema do Troco"](https://en.wikipedia.org/wiki/Change-making_problem). Embora uma abordagem "greedy" funcione para alguns casos, ela falha em outros. A solução ideal envolve programação dinâmica, o que aumenta a complexidade do algoritmo de $O(n)$ para $O(\text{valor} \times m)$, onde $m$ é o número de denominações disponíveis.
+
+Optei por implementar a solução com programação dinâmica, priorizando a correção e robustez, mesmo com o aumento da complexidade computacional. Essa decisão garantiu que o algoritmo pudesse lidar com todos os casos de borda de forma eficaz.
+
+## Tecnologias Utilizadas
+
+- **Next.js**: Framework para construção da aplicação.
+- **Jest**: Ferramenta de testes para garantir a qualidade do código.
+- **TypeScript**: Linguagem utilizada para maior segurança e escalabilidade do código.
+
+## Estrutura do Projeto
+
+- **API**: Endpoint `/api/saque` para processar os pedidos de saque.
+- **Serviços**: Lógica de distribuição de cédulas implementada com programação dinâmica.
+- **Componentes**: Interface amigável para interação com o usuário.
+- **Testes**: Cobertura completa para serviços, validações e integração.
