@@ -1,4 +1,4 @@
-import { ValidationError } from "@/core/types";
+import { ValidationError } from "@/types";
 
 export const VALIDATION_ERRORS = {
   INVALID_TYPE: 'O valor deve ser um número',

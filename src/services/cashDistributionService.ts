@@ -1,5 +1,5 @@
-import { AVAILABLE_BILLS } from "@/core/constants/bills";
-import { BillDistribution } from "@/core/types";
+import { AVAILABLE_BILLS } from "@/constants/bills";
+import { BillDistribution } from "@/types";
 
 /**
  * Calculates the minimum number of bills needed for a withdrawal amount

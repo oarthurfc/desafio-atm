@@ -1,4 +1,4 @@
-import { ErrorResponse, ValidationError } from "@/core/types";
+import { ErrorResponse, ValidationError } from "@/types";
 
 /**
  * Error codes mapping
